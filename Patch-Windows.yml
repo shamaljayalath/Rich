@@ -1,28 +1,71 @@
 ---
-- name : This playbook will run windows update
-  hosts: all
- #connection: local
-  
-  vars:
-    win_update_categories:
-        - CriticalUpdates
-        - DefinitionUpdates
-        - SecurityUpdates
-        - Updates
-        - UpdateRollups
+- name: Install all security, critical, and rollup updates
+  win_updates:
+    category_names:
+      - SecurityUpdates
+      - CriticalUpdates
+      - UpdateRollups
 
-  tasks:
-  # Check if there are missing Critical and Security Updates
-    - block:
-        - name: Checking for Available Windows Updates
-          win_updates:
-            category_names: "{{ win_update_categories }}"
-            state: searched
-          register: available_updates
-        - debug:
-          # output the format in a pretty manner; requires ANSIBLE_STDOUT_CALLBACK=debug environment variable to be set
-            msg: |
-              {{ inventory_hostname }} has {{ available_updates.found_update_count }} updates available.
-              {% for key, value in available_updates.updates.iteritems() %}
-                - {{ value.title }}
-              {% endfor %}
+- name: Install only security updates
+  win_updates:
+    category_names: SecurityUpdates
+
+- name: Search-only, return list of found updates (if any), log to c:\ansible_wu.txt
+  win_updates:
+    category_names: SecurityUpdates
+    state: searched
+    log_path: c:\ansible_wu.txt
+
+- name: Install all security updates with automatic reboots
+  win_updates:
+    category_names:
+    - SecurityUpdates
+    reboot: yes
+
+- name: Install only particular updates based on the KB numbers
+  win_updates:
+    category_name:
+    - SecurityUpdates
+    whitelist:
+    - KB4056892
+    - KB4073117
+
+- name: Exlude updates based on the update title
+  win_updates:
+    category_name:
+    - SecurityUpdates
+    - CriticalUpdates
+    blacklist:
+    - Windows Malicious Software Removal Tool for Windows
+    - \d{4}-\d{2} Cumulative Update for Windows Server 2016
+
+# Note async works on Windows Server 2012 or newer - become must be explicitly set on the task for this to work
+- name: Search for Windows updates asynchronously
+  win_updates:
+    category_names:
+    - SecurityUpdates
+    state: searched
+  async: 180
+  poll: 10
+  register: updates_to_install
+  become: yes
+  become_method: runas
+  become_user: SYSTEM
+
+# Async can also be run in the background in a fire and forget fashion
+- name: Search for Windows updates asynchronously (poll and forget)
+  win_updates:
+    category_names:
+    - SecurityUpdates
+    state: searched
+  async: 180
+  poll: 0
+  register: updates_to_install_async
+
+- name: get status of Windows Update async job
+  async_status:
+    jid: '{{ updates_to_install_async.ansible_job_id }}'
+  register: updates_to_install_result
+  become: yes
+  become_method: runas
+  become_user: SYSTEM
