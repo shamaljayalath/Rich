@@ -1,6 +1,5 @@
 ---
 - name : This playbook will run windows update
-  hosts: 10.1.95.189
   
   vars:
     patches:
