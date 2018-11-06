@@ -3,6 +3,7 @@
   hosts: all
   
   vars:
+    ansible_connection=winrm
     patches:
       - windowsblue-kb3191564-x64_91d95a0ca035587d4c1babe491f51e06a1529843.msu
       - windows8.1-kb4344153-x64_be2840f79f50b30e571b229863d5993dfcda0e0d.msu
