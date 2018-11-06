@@ -1,7 +1,7 @@
 ---
 - name : This playbook will run windows update
   hosts: all
-  connection: local
+ #connection: local
   
   vars:
     win_update_categories:
