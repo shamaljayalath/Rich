@@ -1,6 +1,6 @@
 ---
 - name : This playbook will run windows update
-  hosts: windows
+  hosts: all
   
   vars:
     patches:
