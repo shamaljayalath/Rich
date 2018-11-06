@@ -1,7 +1,6 @@
 ---
 - name : This playbook will run windows update
-  hosts: all
-  ansible_connection=winrm
+  hosts: windows
   
   vars:
     patches:
