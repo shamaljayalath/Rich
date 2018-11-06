@@ -1,6 +1,7 @@
 ---
 - name : This playbook will run windows update
-  hosts: all 
+  hosts: 10.1.95.189
+  
   vars:
     patches:
       - windowsblue-kb3191564-x64_91d95a0ca035587d4c1babe491f51e06a1529843.msu
