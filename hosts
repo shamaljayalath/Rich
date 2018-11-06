@@ -1,2 +1,5 @@
 [windows]
 168.1.95.190
+
+[windows:vars]
+ansible_connection=winrm
